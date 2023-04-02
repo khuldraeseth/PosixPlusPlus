@@ -8,12 +8,12 @@
 
 namespace ppp {
 
-#if BOOST_COMP_MSVC
-#pragma message("MSVC is untested and unsupported. Use at your own risk.")
-#endif
-
 #if BOOST_COMP_GNUC
 #pragma message("GCC has a known undesirable behavior. Consider using clang instead.")
+#else
+#if not BOOST_COMP_CLANG
+#pragma message("This code is written for clang. It may not work with other compilers.")
+#endif
 #endif
 
 namespace impl {
