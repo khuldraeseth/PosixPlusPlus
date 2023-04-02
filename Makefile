@@ -1,3 +1,4 @@
+CXX=clang++
 CXXFLAGS=--std=c++20 -Wall -Wextra -Wpedantic -Werror
 
 BUILD=build
