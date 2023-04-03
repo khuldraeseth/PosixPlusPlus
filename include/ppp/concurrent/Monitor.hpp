@@ -3,8 +3,6 @@
 #include <condition_variable>
 #include <mutex>
 
-#include <boost/predef.h>
-
 
 namespace ppp {
 
@@ -77,12 +75,10 @@ public:
 template <auto... cs>
 using Monitor = detail::Monitor<[] {}, cs...>;
 
-#if BOOST_COMP_GNUC
-#pragma message("GCC has a known incorrect and undesirable behavior. Consider using clang instead.")
-#else
-#if not BOOST_COMP_CLANG
-#pragma message("This code is written for clang. It's untested with other compilers. Use at your own risk.")
-#endif
+#ifndef __clang__
+#pragma message(                                                                                \
+  "This code is written for clang. It's untested with other compilers. Use at your own risk.\n" \
+  "In particular, GCC 12.2.1 has a known misbehavior that allows certain bugs.")
 #endif
 
 }   // namespace ppp
