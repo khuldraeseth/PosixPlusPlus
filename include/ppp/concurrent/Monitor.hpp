@@ -8,15 +8,7 @@
 
 namespace ppp {
 
-#if BOOST_COMP_GNUC
-#pragma message("GCC has a known undesirable behavior. Consider using clang instead.")
-#else
-#if not BOOST_COMP_CLANG
-#pragma message("This code is written for clang. It may not work with other compilers.")
-#endif
-#endif
-
-namespace impl {
+namespace detail {
 
 template <auto id, auto... cs>
 class Monitor {};
@@ -69,7 +61,7 @@ public:
     }
 };
 
-}   // namespace impl
+}   // namespace detail
 
 // A monitor is a mutex with a collection of associated condition variables.
 // `Monitor` is parameterized by a list of condition identifiers. These can
@@ -78,13 +70,19 @@ public:
 //  written `Monitor<cs...>` to name a distinct type, even if `cs` is the same.
 // Why? Because it doesn't make sense to wait on one monitor with a lock on
 //  another.
-// Unfortunately, I don't believe the C++ standard allows what I'm trying to
-//  express here. The lambda trick works outside of variadic templates with the
-//  lambda expression as a default template argument, but that can't follow a
-//  parameter pack.
-// Fortunately, clang has the behavior I want! Pretty sure that's a bug, but I
-//  might as well take advantage of it. Enjoy :)
+// GCC does not handle this properly. It treats the lambda expression as
+//  naming the same object in each instantiation.
+// Fortunately, clang has the behavior I want! So I warn below if clang is not
+//  detected.
 template <auto... cs>
-using Monitor = impl::Monitor<[] {}, cs...>;
+using Monitor = detail::Monitor<[] {}, cs...>;
+
+#if BOOST_COMP_GNUC
+#pragma message("GCC has a known incorrect and undesirable behavior. Consider using clang instead.")
+#else
+#if not BOOST_COMP_CLANG
+#pragma message("This code is written for clang. It's untested with other compilers. Use at your own risk.")
+#endif
+#endif
 
 }   // namespace ppp
