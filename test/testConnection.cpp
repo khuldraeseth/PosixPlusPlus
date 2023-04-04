@@ -13,6 +13,38 @@
 static constexpr auto port = 6069;
 
 
+template <typename T>
+concept HasLvalueBind = requires(T& t) { t.bind(port); };
+
+template <typename T>
+concept HasRvalueBind = requires(T&& t) { std::move(t).bind(port); };
+
+template <typename T>
+concept HasLvalueListen = requires(T& t) { t.listen(1); };
+
+template <typename T>
+concept HasRvalueListen = requires(T&& t) { std::move(t).listen(1); };
+
+template <typename T>
+concept HasLvalueAccept = requires(T& t) { t.accept(); };
+
+template <typename T>
+concept HasRvalueAccept = requires(T&& t) { std::move(t).accept(); };
+
+template <typename T>
+concept HasLvalueConnect = requires(T& t) { t.connect("localhost", port); };
+
+template <typename T>
+concept HasRvalueConnect = requires(T&& t) { std::move(t).connect("localhost", port); };
+
+
+static_assert(not HasLvalueBind<ppp::UnboundSocket> and HasRvalueBind<ppp::UnboundSocket>);
+static_assert(not HasLvalueListen<ppp::UnboundSocket> and HasRvalueListen<ppp::UnboundSocket>);
+static_assert(not HasLvalueListen<ppp::BoundSocket> and HasRvalueListen<ppp::BoundSocket>);
+static_assert(HasLvalueAccept<ppp::ListeningSocket> and HasRvalueAccept<ppp::ListeningSocket>);
+static_assert(not HasLvalueConnect<ppp::UnboundSocket> and HasRvalueConnect<ppp::UnboundSocket>);
+
+
 auto runClient() -> void {
     using std::literals::operator""sv;
 
